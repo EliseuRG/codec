@@ -5,3 +5,4 @@ data/
 src/utils/tenants.json
 src/uploads
 src/compressed
+.vercel

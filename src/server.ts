@@ -5,7 +5,7 @@ import WebSocket   from 'ws';
 import codecRoutes from './router/CodecRoutes';
 
 const app = express();
-export const wss = new WebSocket.Server({ port: 8080 }); // Adicione a palavra-chave 'export'
+export const wss = new WebSocket.Server({ port: 8081 }); // Adicione a palavra-chave 'export'
 
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(codecRoutes);
@@ -16,8 +16,8 @@ app.use((req, res, next) => {
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-app.listen(3000, () => {
-  console.log('Servidor rodando na porta 3000');
+app.listen(31103, () => {
+  console.log('Servidor rodando na porta 31103');
 });
 
 wss.on('connection', ws => {

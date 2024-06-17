@@ -1,6 +1,4 @@
-// CodecController.ts
 import { Request as ExpressRequest, Response } from 'express';
-import multer from 'multer';
 import fs from 'fs';
 import path from 'path';
 import { CodecService } from '../service/CodecService';
@@ -8,35 +6,22 @@ import progress from 'progress-stream';
 import { wss } from '../server'; // Importe o 'wss' do arquivo 'server.ts'
 import WebSocket from 'ws'; // Importe WebSocket se você planeja usá-lo
 
-// Estenda a interface Request para incluir a propriedade file
 interface Request extends ExpressRequest {
-  file?: Express.Multer.File; // file pode ser undefined
+  file?: Express.Multer.File;
 }
 
 const codecService = new CodecService();
 
 export async function compress(req: Request, res: Response) {
-  if (!req.file) {
+  if (!req.file || !req.file.buffer) {
     res.status(400).send('Nenhum arquivo enviado');
     return;
   }
 
-  const inputPath = req.file.path;
-  const outputPath = 'src/compressed/' + req.file.filename + '.mp4'; // Adicione a extensão de arquivo correta
+  const inputBuffer = req.file.buffer; // Acesse o conteúdo do arquivo diretamente do buffer em memória
+  const outputPath = `src/compressed/${req.file.originalname}`; // Corrigido para não adicionar .mp4 novamente
 
   try {
-    // Verifique se o arquivo de entrada existe
-    if (!fs.existsSync(inputPath)) {
-      res.status(400).send('Arquivo de entrada não encontrado');
-      return;
-    }
-
-    // Verifique se o diretório de saída existe e crie-o se não existir
-    const outputDir = path.dirname(outputPath);
-    if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
-    }
-
     // Crie um stream de progresso
     const progressStream = progress({
       length: req.file.size,
@@ -57,48 +42,40 @@ export async function compress(req: Request, res: Response) {
       });
     });
 
-    // Obtenha as informações do vídeo original
-    const originalVideoInfo = await codecService.getVideoInfo(inputPath);
-    //console.log('Original video info:', originalVideoInfo);
-
     // Use o stream de progresso ao chamar o método compressVideo
-    await codecService.compressVideo(inputPath, outputPath, progressStream);
+    await codecService.compressVideo(inputBuffer, outputPath, progressStream);
 
-    // Obtenha as informações do vídeo comprimido
+    // Obtenha as informações do vídeo comprimido diretamente do buffer de saída
     const compressedVideoInfo = await codecService.getVideoInfo(outputPath);
-    //console.log('Compressed video info:', compressedVideoInfo);
-
-    // Retorne o link de download e as informações do vídeo como resposta
+    
+    console.log(`[52] downloadLink: /download/${req.file.originalname}`);
+    // Retorne o link de download e o nome original do arquivo como resposta
     res.status(200).send({
-      downloadLink: `/download/${req.file.filename}.mp4`,
-      originalVideoInfo,
-      compressedVideoInfo
+      downloadLink: `/download/${req.file.originalname}`,
+      originalName: req.file.originalname // Envie o nome original do arquivo
     });
 
   } catch (error) {
     if (error instanceof Error) {
+      console.log("[61] Erro:", error.message);
       res.status(500).send(error.message);
     } else {
+      console.log('[64] Ocorreu um erro desconhecido');
       res.status(500).send('Ocorreu um erro desconhecido');
     }
   }
 }
 
 export function download(req: ExpressRequest, res: Response) {
-  const filename      = req.params.filename;
+  const filename = req.params.filename;
   const directoryPath = path.resolve(__dirname, '..', '..', 'src/compressed');
-  const fullPath      = path.join(directoryPath, filename);
+  const fullPath = path.join(directoryPath, filename);
 
-  //console.log(`FILENAME.: ${filename}`);
-  //console.log(`DIRECTORY: ${directoryPath}`);
-  //console.log(`FULLPATH.: ${fullPath}`);
-  
   res.setHeader('Content-Disposition', 'attachment; filename=' + filename);
   res.download(fullPath, filename, (err) => {
     if (err) {
-      res.status(500).send({
-        message: "Não foi possível baixar o arquivo. " + err,
-      });
+      console.error('Não foi possível baixar o arquivo:', err);
+      res.status(500).send('Erro ao baixar o arquivo');
     }
   });
 }

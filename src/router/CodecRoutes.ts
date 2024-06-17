@@ -4,8 +4,11 @@ import multer from 'multer';
 import { compress, download } from '../controller/CodecController';
 
 const router = express.Router();
+
+// Configuração do multer para armazenar em memória
+const memoryStorage = multer.memoryStorage();
 const upload = multer({ 
-  dest: 'src/uploads/', 
+  storage: memoryStorage,
   limits: { fileSize: 10000000 } // Limite de 10MB
 });
 

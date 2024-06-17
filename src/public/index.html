@@ -304,10 +304,10 @@
         <div class="button-container">
           <button class="button" id="sendButton" type="submit" disabled>Enviar</button>
           <button class="button" id="removeButton" onclick="removeVideo(event)" disabled>Remover</button>
-          <button class="button" id="downloadButton" onclick="downloadVideo(event)" disabled>Baixar</button> <!-- Novo botão de download -->
+          <button class="button" id="downloadButton" onclick="downloadVideo(event)" disabled>Baixar</button>
         </div>
       </form>
-      <video id="videoPlayer" controls style="display: none;"></video>
+      <video id="videoPlayer" controls style="display: none;"></video>      
     </div>
     
     <footer>
@@ -315,20 +315,18 @@
     </footer>
   
     <script>
-
       var dropzone = document.getElementById('dropzone');
-      var input    = document.getElementById('videoUpload');
-      var video    = document.getElementById('videoPlayer');
-      var form     = document.getElementById('videoForm');
+      var input = document.getElementById('videoUpload');
+      var video = document.getElementById('videoPlayer');
       var removeButton = document.getElementById('removeButton');
-      var sendButton = document.getElementById('sendButton'); // Adicione esta linha
-      var downloadButton = document.getElementById('downloadButton'); // Desabilite o botão de download por padrão
+      var sendButton = document.getElementById('sendButton');
+      var downloadButton = document.getElementById('downloadButton');
     
       function updateButtonStatus(isEnabled) {
         removeButton.disabled = !isEnabled;
         sendButton.disabled = !isEnabled;
         downloadButton.disabled = true;
-
+    
         if (isEnabled) {
           removeButton.classList.remove('disabled');
           sendButton.classList.remove('disabled');
@@ -338,27 +336,17 @@
         }
       }
 
-      function updateProgressBar(percentage) {
-        var progressBar = document.getElementById('progressBar');
-        var progressBarContainer = document.getElementById('progressBarContainer');
-        progressBarContainer.style.display = 'block';
-        progressBar.style.width = percentage + '%';
-        if (percentage >= 100) {
-          progressBarContainer.style.display = 'none';
-        }
-      }
-      
-      dropzone.onclick = function () {
-        input.click();
-      };
+      var originalFileName = '';
     
       input.onchange = function () {
-        video.src = URL.createObjectURL(input.files[0]);
-        video.load();
-        video.oncanplaythrough = function () {
-          video.style.display = "block";
-          updateButtonStatus(true);
-        }
+        var file = input.files[0];
+        originalFileName = file.name; // Capture o nome original do arquivo
+        var videoURL = URL.createObjectURL(file);
+        setVideoSource(videoURL, file);
+      };
+    
+      dropzone.onclick = function () {
+        input.click(); // Clique no input file invisível ao clicar no dropzone
       };
     
       dropzone.ondragover = function (event) {
@@ -366,20 +354,29 @@
         dropzone.style.backgroundColor = '#f0f0f0';
       };
     
-      dropzone.ondragleave = function () {
+      dropzone.ondragleave = function (event) {
+        event.preventDefault();
         dropzone.style.backgroundColor = '#fff';
       };
     
       dropzone.ondrop = function (event) {
         event.preventDefault();
         dropzone.style.backgroundColor = '#fff';
-        input.files = event.dataTransfer.files;
-        video.src = URL.createObjectURL(input.files[0]);
+        var file = event.dataTransfer.files[0];
+        originalFileName = file.name; // Capture o nome original do arquivo
+        var videoURL = URL.createObjectURL(file);
+        setVideoSource(videoURL, file);
+      };
+    
+      function setVideoSource(url, file) {
+        video.src = url;
+        video.srcBlob = file; // Armazena o blob do vídeo
         video.load();
         video.oncanplaythrough = function () {
+          video.style.display = "block";
           updateButtonStatus(true);
-        }
-      };
+        };
+      }
     
       function removeVideo(event) {
         event.preventDefault();
@@ -387,86 +384,42 @@
         video.style.display = "none";
         updateButtonStatus(false);
         input.value = ""; // Limpa o campo de entrada do arquivo
-        // Desabilite o botão de download após a remoção do vídeo
-        var downloadButton = document.getElementById('downloadButton');
-        downloadButton.disabled = true; // Desabilita o botão de download inicialmente
       }
-
-      // Adicione uma variável para armazenar o nome do arquivo
-      let filename;
-      // Adicione uma variável para armazenar o formulário
-      var form = document.getElementById('videoForm');
-
-      document.getElementById('videoForm').addEventListener('submit', function(event) {
+    
+      document.getElementById('videoForm').addEventListener('submit', function (event) {
         event.preventDefault();
 
-        var formData = new FormData(this);
+        var formData = new FormData();
+        formData.append('video', video.srcBlob, originalFileName); // Use o nome original do arquivo
+
         var request = new XMLHttpRequest();
 
-        request.onreadystatechange = function() {
-          if (request.readyState == 4 && request.status == 400) {
-            document.getElementById('errorMessage').textContent = request.responseText;
-            document.getElementById('errorModal').style.display = 'block';
+        request.onreadystatechange = function () {
+          if (request.readyState == 4) {
+            if (request.status == 400) {
+              document.getElementById('errorMessage').textContent = request.responseText;
+              document.getElementById('errorModal').style.display = 'block';
 
-            setTimeout(function() {
-              document.getElementById('errorModal').style.display = 'none';
-            }, 3000);
-          }
+              setTimeout(function () {
+                document.getElementById('errorModal').style.display = 'none';
+              }, 3000);
+            } else if (request.status == 200) {
+              var response = JSON.parse(request.responseText);
+              var downloadLink = response.downloadLink;
+              var originalName = response.originalName;
 
-          if (request.readyState == 4 && request.status == 200) {
-            var response = JSON.parse(request.responseText);
-            filename = response.compressedVideoInfo.format.filename;
-            //console.log("SUBMIT FILENAME:",filename);
-            sendButton.disabled = true;
-            removeButton.disabled = true;
-            downloadButton.disabled = false;
+              // Atualiza a interface com o link de download
+              if (downloadLink && originalName) {
+                localStorage.setItem('compressedVideoInfo', JSON.stringify({ downloadLink: downloadLink, originalName: originalName }));
+                console.log("LOCALSTORAGE: ", localStorage);
 
-            let originalVideoInfo = {
-              tamanho         : (response?.originalVideoInfo?.format?.size / 1000000).toFixed(2) + " MB",
-              duracao         : response?.originalVideoInfo?.format?.duration + " s",
-              largura         : response?.originalVideoInfo?.streams?.[0]?.width,
-              altura          : response?.originalVideoInfo?.streams?.[0]?.height,
-              codecVideo      : response?.originalVideoInfo?.streams?.[0]?.codec_name,
-              taxaBitsVideo   : response?.originalVideoInfo?.streams?.[0]?.bit_rate,
-              taxaQuadrosVideo: response?.originalVideoInfo?.streams?.[0]?.r_frame_rate,
-              codecAudio      : response?.originalVideoInfo?.streams?.[1]?.codec_name,
-              taxaBitsAudio   : response?.originalVideoInfo?.streams?.[1]?.bit_rate,
-              taxaQuadrosAudio: response?.originalVideoInfo?.streams?.[1]?.r_frame_rate
-            };
+                // Habilita o botão de download
+                downloadButton.disabled = false;
+              }
 
-            let compressedVideoInfo = {
-              tamanho         : (response?.compressedVideoInfo?.format?.size / 1000000).toFixed(2) + " MB",
-              duracao         : response?.compressedVideoInfo?.format?.duration + " s",
-              largura         : response?.compressedVideoInfo?.streams?.[0]?.width,
-              altura          : response?.compressedVideoInfo?.streams?.[0]?.height,
-              codecVideo      : response?.compressedVideoInfo?.streams?.[0]?.codec_name,
-              taxaBitsVideo   : response?.compressedVideoInfo?.streams?.[0]?.bit_rate,
-              taxaQuadrosVideo: response?.compressedVideoInfo?.streams?.[0]?.r_frame_rate,
-              codecAudio      : response?.compressedVideoInfo?.streams?.[1]?.codec_name,
-              taxaBitsAudio   : response?.compressedVideoInfo?.streams?.[1]?.bit_rate,
-              taxaQuadrosAudio: response?.compressedVideoInfo?.streams?.[1]?.r_frame_rate
-            };
-            
-            for (let prop in originalVideoInfo) {
-                if (originalVideoInfo.hasOwnProperty(prop)) {
-                    let element = document.getElementById('original_' + prop);
-                    if (element) {
-                        element.innerHTML = "<strong>" + prop + ":</strong> " + originalVideoInfo[prop];
-                    }
-                }
+              // Exibe o modal com o relatório do vídeo
+              document.getElementById('reportModal').style.display = 'block';
             }
-
-            for (let prop in compressedVideoInfo) {
-                if (compressedVideoInfo.hasOwnProperty(prop)) {
-                    let element = document.getElementById('compressed_' + prop);
-                    if (element) {
-                        element.innerHTML = "<strong>" + prop + ":</strong> " + compressedVideoInfo[prop];
-                    }
-                }
-            }
-
-            // Mostre o modal com as informações do vídeo
-            document.getElementById('reportModal').style.display = 'block';
           }
         };
 
@@ -474,45 +427,51 @@
         request.send(formData);
       });
 
-      // Adicione esta linha para obter uma referência ao botão de download
-      var downloadButton = document.getElementById('downloadButton');
 
-      // Adicione esta função para iniciar o download do vídeo
+      function updateVideoInfo(type, info) {
+        var prefix = type === 'original' ? 'original_' : 'compressed_';
+        var keys = Object.keys(info);
+        keys.forEach(function (key) {
+          var element = document.getElementById(prefix + key);
+          if (element) {
+            element.textContent = info[key];
+          }
+        });
+      }
+
       function downloadVideo(event) {
         event.preventDefault();
 
-        //console.log('DOWNLOAD VIDEO FILENAME:', filename);
-        var request = new XMLHttpRequest();
-        var correctedFilename = filename.replace('src/compressed/', '');
-        request.open('GET', '/download/' + correctedFilename, true);
-        request.responseType = 'blob';
-        request.onload = function() {
-          if (this.status === 200) {
-            var blob = this.response;
-            var link = document.createElement('a');
-            link.href = window.URL.createObjectURL(blob);
-            link.download = correctedFilename;
-            link.click();
+        var link = document.createElement('a');
+        var compressedVideoInfo = JSON.parse(localStorage.getItem('compressedVideoInfo'));
 
-            // Desabilite o botão de download após o início do download
-            downloadButton.disabled = true;
+        if (!compressedVideoInfo || !compressedVideoInfo.downloadLink) {
+          console.error('Informações do vídeo comprimido não encontradas.');
+          return;
+        }
 
-            // Chame a função removeVideo após o envio bem-sucedido
-            removeVideo(event);
-          }
-        };
-        request.send();
+        // Use o nome original do arquivo para o download
+        var originalName = compressedVideoInfo.originalName || 'video_compressed';
+        var downloadName = originalName.replace(/(\.\w+)?$/, '_compressed$1');
+        //console.log(originalName);
+        //console.log(downloadName);
+        //console.log(compressedVideoInfo.downloadLink);
+        //console.log(`/download/${downloadName}`);
+
+        link.href = compressedVideoInfo.downloadLink;
+        link.download = downloadName;
+        link.click();
       }
-
-      document.getElementById('closeModal').addEventListener('click', function() {
+    
+      document.getElementById('closeModal').addEventListener('click', function () {
         document.getElementById('errorModal').style.display = 'none';
       });
-
-      document.getElementById('closeReportModal').addEventListener('click', function() {
+    
+      document.getElementById('closeReportModal').addEventListener('click', function () {
         document.getElementById('reportModal').style.display = 'none';
       });
-
-
+    
     </script>
+    
   </body>
 </html>
