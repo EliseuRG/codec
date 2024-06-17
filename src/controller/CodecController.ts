@@ -20,16 +20,9 @@ export async function compress(req: Request, res: Response) {
   }
 
   const inputBuffer = req.file.buffer; // Acesse o conteúdo do arquivo diretamente do buffer em memória
-  const tempInputPath = `src/temp/${req.file.originalname}`; // Caminho temporário para o arquivo de entrada
-  const outputPath = `src/compressed/${req.file.originalname}`; // Caminho do arquivo de saída
+  const outputPath = 'src/compressed/' + req.file.originalname; // Nome do arquivo de saída
 
   try {
-    // Salvar o buffer de entrada em um arquivo temporário para obter informações
-    await fs.promises.writeFile(tempInputPath, inputBuffer);
-
-    // Obtenha as informações do vídeo original
-    const originalVideoInfo = await codecService.getVideoInfo(tempInputPath);
-
     // Crie um stream de progresso
     const progressStream = progress({
       length: req.file.size,
@@ -41,7 +34,7 @@ export async function compress(req: Request, res: Response) {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    progressStream.on('progress', function (p) {
+    progressStream.on('progress', function(p) {
       // Envie um evento de progresso para todos os clientes WebSocket
       wss.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
@@ -53,17 +46,17 @@ export async function compress(req: Request, res: Response) {
     // Use o stream de progresso ao chamar o método compressVideo
     await codecService.compressVideo(inputBuffer, outputPath, progressStream);
 
-    // Obtenha as informações do vídeo comprimido
+    // Obtenha as informações do vídeo comprimido diretamente do buffer de saída
     const compressedVideoInfo = await codecService.getVideoInfo(outputPath);
 
-    // Remova o arquivo temporário
-    await fs.promises.unlink(tempInputPath);
+    const originalName = req.file.originalname;
+    const downloadLink = `/download/${originalName}`;
 
-    // Retorne o link de download e as informações dos vídeos como resposta
+    console.log(`[52] downloadLink: ${downloadLink}`);
+    // Retorne o link de download e as informações do vídeo como resposta
     res.status(200).send({
-      downloadLink: `/download/${req.file.originalname}`,
-      originalName: req.file.originalname,
-      originalVideoInfo,
+      downloadLink,
+      originalName,
       compressedVideoInfo
     });
 

@@ -405,6 +405,7 @@
               }, 3000);
             } else if (request.status == 200) {
               var response = JSON.parse(request.responseText);
+              console.log("RESPONSE: ", response);
               var downloadLink = response.downloadLink;
               var originalName = response.originalName;
 
