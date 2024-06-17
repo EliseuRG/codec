@@ -1,3 +1,4 @@
+// CodecController.ts
 import { Request as ExpressRequest, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
@@ -19,9 +20,16 @@ export async function compress(req: Request, res: Response) {
   }
 
   const inputBuffer = req.file.buffer; // Acesse o conteúdo do arquivo diretamente do buffer em memória
-  const outputPath = `src/compressed/${req.file.originalname}`; // Corrigido para não adicionar .mp4 novamente
+  const tempInputPath = `src/temp/${req.file.originalname}`; // Caminho temporário para o arquivo de entrada
+  const outputPath = `src/compressed/${req.file.originalname}`; // Caminho do arquivo de saída
 
   try {
+    // Salvar o buffer de entrada em um arquivo temporário para obter informações
+    await fs.promises.writeFile(tempInputPath, inputBuffer);
+
+    // Obtenha as informações do vídeo original
+    const originalVideoInfo = await codecService.getVideoInfo(tempInputPath);
+
     // Crie um stream de progresso
     const progressStream = progress({
       length: req.file.size,
@@ -33,7 +41,7 @@ export async function compress(req: Request, res: Response) {
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    progressStream.on('progress', function(p) {
+    progressStream.on('progress', function (p) {
       // Envie um evento de progresso para todos os clientes WebSocket
       wss.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
@@ -45,14 +53,18 @@ export async function compress(req: Request, res: Response) {
     // Use o stream de progresso ao chamar o método compressVideo
     await codecService.compressVideo(inputBuffer, outputPath, progressStream);
 
-    // Obtenha as informações do vídeo comprimido diretamente do buffer de saída
+    // Obtenha as informações do vídeo comprimido
     const compressedVideoInfo = await codecService.getVideoInfo(outputPath);
-    
-    console.log(`[52] downloadLink: /download/${req.file.originalname}`);
-    // Retorne o link de download e o nome original do arquivo como resposta
+
+    // Remova o arquivo temporário
+    await fs.promises.unlink(tempInputPath);
+
+    // Retorne o link de download e as informações dos vídeos como resposta
     res.status(200).send({
       downloadLink: `/download/${req.file.originalname}`,
-      originalName: req.file.originalname // Envie o nome original do arquivo
+      originalName: req.file.originalname,
+      originalVideoInfo,
+      compressedVideoInfo
     });
 
   } catch (error) {
