@@ -1,11 +1,10 @@
-// CodecController.ts
 import { Request as ExpressRequest, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { CodecService } from '../service/CodecService';
 import progress from 'progress-stream';
-import { wss } from '../server'; // Importe o 'wss' do arquivo 'server.ts'
-import WebSocket from 'ws'; // Importe WebSocket se você planeja usá-lo
+import { wss } from '../server';
+import WebSocket from 'ws';
 
 interface Request extends ExpressRequest {
   file?: Express.Multer.File;
@@ -19,23 +18,33 @@ export async function compress(req: Request, res: Response) {
     return;
   }
 
-  const inputBuffer = req.file.buffer; // Acesse o conteúdo do arquivo diretamente do buffer em memória
-  const outputPath = 'src/compressed/' + req.file.originalname; // Nome do arquivo de saída
+  const inputBuffer = req.file.buffer;
+  const tempInputPath = path.resolve('src/temp', req.file.originalname);
+  const outputPath = path.resolve('src/compressed', req.file.originalname);
+
+  const tempDir = path.dirname(tempInputPath);
+  const outputDir = path.dirname(outputPath);
+
+  if (!fs.existsSync(tempDir)) {
+    fs.mkdirSync(tempDir, { recursive: true });
+  }
+  if (!fs.existsSync(outputDir)) {
+    fs.mkdirSync(outputDir, { recursive: true });
+  }
+
+  fs.writeFileSync(tempInputPath, inputBuffer);
 
   try {
-    // Crie um stream de progresso
     const progressStream = progress({
       length: req.file.size,
-      time: 100 /* ms */
+      time: 100 // ms
     });
 
-    // Configure a resposta para SSE
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    progressStream.on('progress', function(p) {
-      // Envie um evento de progresso para todos os clientes WebSocket
+    progressStream.on('progress', function (p) {
       wss.clients.forEach(client => {
         if (client.readyState === WebSocket.OPEN) {
           client.send(JSON.stringify(p));
@@ -43,20 +52,18 @@ export async function compress(req: Request, res: Response) {
       });
     });
 
-    // Use o stream de progresso ao chamar o método compressVideo
-    await codecService.compressVideo(inputBuffer, outputPath, progressStream);
-
-    // Obtenha as informações do vídeo comprimido diretamente do buffer de saída
+    const originalVideoInfo = await codecService.getVideoInfo(tempInputPath);
+    await codecService.compressVideo(tempInputPath, outputPath, progressStream);
     const compressedVideoInfo = await codecService.getVideoInfo(outputPath);
 
     const originalName = req.file.originalname;
     const downloadLink = `/download/${originalName}`;
 
     console.log(`[52] downloadLink: ${downloadLink}`);
-    // Retorne o link de download e as informações do vídeo como resposta
     res.status(200).send({
       downloadLink,
       originalName,
+      originalVideoInfo,
       compressedVideoInfo
     });
 
@@ -68,6 +75,8 @@ export async function compress(req: Request, res: Response) {
       console.log('[64] Ocorreu um erro desconhecido');
       res.status(500).send('Ocorreu um erro desconhecido');
     }
+  } finally {
+    fs.unlinkSync(tempInputPath);
   }
 }
 

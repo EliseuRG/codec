@@ -1,31 +1,27 @@
-// CodecService.ts
-import { Writable } from 'stream';
+import fs from 'fs';
 import ffmpeg from 'fluent-ffmpeg';
-import { Readable } from 'stream'; // Importe Readable do Node.js
 
 export class CodecService {
-  compressVideo(inputBuffer: Buffer, outputPath: string, progressStream?: Writable): Promise<void> {
+  async compressVideo(inputPath: string, outputPath: string, progressStream?: any): Promise<void> {
     return new Promise((resolve, reject) => {
       console.log('Iniciando compressão do vídeo...');
 
-      // Crie um fluxo legível (Readable) a partir do buffer do arquivo
-      const readableStream = new Readable();
-      readableStream.push(inputBuffer);
-      readableStream.push(null); // Indique o fim do fluxo
-
       const command = ffmpeg()
-        .input(readableStream) // Use o fluxo legível como entrada
+        .input(inputPath)
         .outputOptions('-vf', 'scale=iw/2:ih/2') // Reduz a resolução pela metade
         .outputOptions('-pix_fmt', 'yuv420p') // Aplica a subamostragem de cor 4:2:0
-        .on('progress', progress => {
+        .outputOptions('-c:v', 'libx264') // Usa o codec H.264
+        .outputOptions('-crf', '28') // Aplica compressão com fator de qualidade constante (28 é um valor comum)
+        .outputOptions('-preset', 'fast') // Usa um preset de compressão rápida (ajuste conforme necessário)
+        .on('progress', (progress) => {
           if (progressStream) {
             progressStream.write(`data: ${JSON.stringify(progress)}\n\n`);
           }
         })
-        .output(outputPath); // Saída para outputPath
+        .output(outputPath);
 
       command
-        .on('start', commandLine => {
+        .on('start', (commandLine) => {
           console.log(`Comando ffmpeg iniciado: ${commandLine}`);
         })
         .on('end', () => {
@@ -40,13 +36,13 @@ export class CodecService {
     });
   }
 
-  decompressVideo(inputPath: string, outputPath: string): Promise<void> {
+  async decompressVideo(inputPath: string, outputPath: string): Promise<void> {
     return new Promise((resolve, reject) => {
       console.log('Iniciando descompressão do vídeo...');
 
       ffmpeg(inputPath)
         .output(outputPath)
-        .on('start', commandLine => {
+        .on('start', (commandLine) => {
           console.log(`Comando ffmpeg iniciado: ${commandLine}`);
         })
         .on('end', () => {
@@ -61,7 +57,7 @@ export class CodecService {
     });
   }
 
-  getVideoInfo(inputPath: string): Promise<any> {
+  async getVideoInfo(inputPath: string): Promise<any> {
     return new Promise((resolve, reject) => {
       console.log('Obtendo informações do vídeo...');
 
