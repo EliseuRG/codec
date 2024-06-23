@@ -5,7 +5,7 @@ import ffmpeg from 'fluent-ffmpeg';
 export class CodecService {
   async compressVideo(inputPath: string, outputPath: string, progressStream?: any): Promise<void> {
     return new Promise((resolve, reject) => {
-      console.log('Iniciando compressão do vídeo...');
+      console.log('[CS]:08 Iniciando compressão do vídeo...');
 
       const command = ffmpeg()
         .input(inputPath)
@@ -23,14 +23,14 @@ export class CodecService {
 
       command
         .on('start', (commandLine) => {
-          console.log(`Comando ffmpeg iniciado: ${commandLine}`);
+          console.log(`[CS]:26 Comando ffmpeg iniciado: ${commandLine}`);
         })
         .on('end', () => {
-          console.log('Compressão do vídeo concluída.');
+          console.log('[CS]:29 Compressão do vídeo concluída.');
           resolve();
         })
         .on('error', (error) => {
-          console.error('Erro durante a compressão do vídeo:', error);
+          console.error('[CS]:33 Erro durante a compressão do vídeo:', error);
           reject(error);
         })
         .run();
@@ -39,19 +39,19 @@ export class CodecService {
 
   async decompressVideo(inputPath: string, outputPath: string): Promise<void> {
     return new Promise((resolve, reject) => {
-      console.log('Iniciando descompressão do vídeo...');
+      console.log('[CS]:42 Iniciando descompressão do vídeo...');
 
       ffmpeg(inputPath)
         .output(outputPath)
         .on('start', (commandLine) => {
-          console.log(`Comando ffmpeg iniciado: ${commandLine}`);
+          console.log(`[CS]:47 Comando ffmpeg iniciado: ${commandLine}`);
         })
         .on('end', () => {
-          console.log('Descompressão do vídeo concluída.');
+          console.log('[CS]:50 Descompressão do vídeo concluída.');
           resolve();
         })
         .on('error', (error) => {
-          console.error('Erro durante a descompressão do vídeo:', error);
+          console.error('[CS]:54 Erro durante a descompressão do vídeo:', error);
           reject(error);
         })
         .run();
@@ -60,14 +60,14 @@ export class CodecService {
 
   async getVideoInfo(inputPath: string): Promise<any> {
     return new Promise((resolve, reject) => {
-      console.log('Obtendo informações do vídeo...');
+      console.log('[CS]:54 Obtendo informações do vídeo...');
 
       ffmpeg.ffprobe(inputPath, (err, metadata) => {
         if (err) {
-          console.error('Erro ao obter informações do vídeo:', err);
+          console.error('[CS]:67 Erro ao obter informações do vídeo:', err);
           reject(err);
         } else {
-          console.log('Informações do vídeo obtidas com sucesso.');
+          console.log('[CS]:70 Informações do vídeo obtidas com sucesso.');
           resolve(metadata);
         }
       });
