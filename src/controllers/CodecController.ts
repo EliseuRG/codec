@@ -2,7 +2,7 @@
 import { Request as ExpressRequest, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
-import { CodecService } from '../service/CodecService';
+import { CodecService } from '../services/CodecService';
 import progress from 'progress-stream';
 import { wss } from '../server';
 import WebSocket from 'ws';
@@ -23,9 +23,9 @@ export async function compress(req: Request, res: Response) {
 
   const inputBuffer = req.file.buffer;
   console.log('[CC]:26 Buffer do arquivo recebido');
-  const tempInputPath = path.resolve('src/temp', req.file.originalname);
+  const tempInputPath = path.resolve(__dirname, '../../tmp/temp', req.file.originalname);
   console.log('[CC]:27 Caminho temporário do arquivo:', tempInputPath);
-  const outputPath = path.resolve('src/compressed', req.file.originalname);
+  const outputPath = path.resolve(__dirname, '../../tmp/compressed', req.file.originalname);
   console.log('[CC]:29 Caminho de saída do arquivo:', outputPath);
 
   const tempDir = path.dirname(tempInputPath);
@@ -100,7 +100,8 @@ export function download(req: ExpressRequest, res: Response) {
 
   console.log('[CC]:102 Iniciando download do arquivo');
   const filename = req.params.filename;
-  const directoryPath = path.resolve(__dirname, '..', '..', 'src/compressed');
+  const directoryPath = path.resolve(__dirname, '../../tmp/compressed');
+  console.log("[CC]:104 directoryPath", directoryPath)
   const fullPath = path.join(directoryPath, filename);
 
   res.setHeader('Content-Disposition', 'attachment; filename=' + filename);

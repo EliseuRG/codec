@@ -1,7 +1,7 @@
 // CodecRoutes.ts
 import express, { Request, Response, NextFunction } from 'express';
 import multer from 'multer';
-import { compress, download } from '../controller/CodecController';
+import { compress, download } from '../controllers/CodecController';
 
 const router = express.Router();
 

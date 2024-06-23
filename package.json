@@ -1,33 +1,34 @@
 {
     "scripts": {
-      "start": "nodemon dist/server.js",
-      "dev": "nodemon src/server.ts",
-      "build": "tsc && npm run copy-public",
-      "copy-public": "cp -R src/public dist/"
+        "start": "nodemon dist/server.js",
+        "dev": "nodemon src/server.ts",
+        "build": "tsc && npm run copy-public",
+        "copy-public": "cp -R src/public dist/"
     },
     "dependencies": {
-      "@ffmpeg-installer/ffmpeg": "^1.1.0",
-      "@vercel/speed-insights": "^1.0.12",
-      "express": "^4.19.2",
-      "fft.js": "^4.0.4",
-      "fluent-ffmpeg": "^2.1.3",
-      "glob": "^10.4.1",
-      "huffman-ts": "^0.1.3",
-      "jimp": "^0.22.12",
-      "multer": "^1.4.5-lts.1",
-      "progress-stream": "^2.0.0",
-      "puppeteer": "^22.11.0",
-      "sharp": "^0.33.4",
-      "ws": "^8.17.1"
+        "@ffmpeg-installer/ffmpeg": "^1.1.0",
+        "@types/node": "^20.14.8",
+        "@vercel/speed-insights": "^1.0.12",
+        "express": "^4.19.2",
+        "fft.js": "^4.0.4",
+        "fluent-ffmpeg": "^2.1.3",
+        "glob": "^10.4.1",
+        "huffman-ts": "^0.1.3",
+        "jimp": "^0.22.12",
+        "multer": "^1.4.5-lts.1",
+        "progress-stream": "^2.0.0",
+        "puppeteer": "^22.11.0",
+        "sharp": "^0.33.4",
+        "ts-node-dev": "^2.0.0",
+        "ws": "^8.17.1"
     },
     "devDependencies": {
-      "@types/express": "^4.17.21",
-      "@types/fluent-ffmpeg": "^2.1.24",
-      "@types/multer": "^1.4.11",
-      "@types/progress-stream": "^2.0.5",
-      "@types/ws": "^8.5.10",
-      "nodemon": "^3.1.3",
-      "typescript": "^5.1.6"
+        "@types/express": "^4.17.21",
+        "@types/fluent-ffmpeg": "^2.1.24",
+        "@types/multer": "^1.4.11",
+        "@types/progress-stream": "^2.0.5",
+        "@types/ws": "^8.5.10",
+        "nodemon": "^3.1.3",
+        "typescript": "^5.5.2"
     }
-  }
-  
+}

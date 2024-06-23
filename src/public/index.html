@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="/images/favicon.ico">
     <link href="https://fonts.googleapis.com/css?family=Inter:300,600,700,900" rel="stylesheet">
-    <title>CMP1103 | CODEC</title>
+    <title>CMP1103</title>
 
     <style>
       body {
@@ -30,10 +30,21 @@
       .container p {
         text-align: center; /* Centraliza o texto */
         font-weight: bold; /* Deixa o texto em negrito */
+        color: #333;
+        margin-left: 5%;
+        margin-right: 5%;
       }
       h1 {
         color: #333;
         text-align: center;
+        margin-left: 5%;
+        margin-right: 5%;
+      }
+      h3 {
+        color: #003C85;
+        text-align: center;
+        margin-left: 5%;
+        margin-right: 5%;
       }
       .button {
         background-color: #4CAF50;
@@ -83,6 +94,12 @@
       .red-stripe {
         background-color: #D02729;
       }
+      .black-stripe {
+        height: 2px; /* Ajuste este valor para a altura desejada */
+        width: 80%;
+        background-color: #85858586;
+        margin: 0 auto; 
+      }
       header h2 {
         margin: auto; /* Centraliza o título */
       }
@@ -96,119 +113,9 @@
         text-align: center;
         padding: 0.001% 0; /* Reduz o padding para diminuir a altura */
       }
-      .dropzone {
-        border: 2px dashed #333;
-        border-radius: 4px;
-        padding: 20px;
-        text-align: center;
-        margin-top: 20px;
-        cursor: pointer;
-        margin-left: 10%; /* Aumenta a margem esquerda para 10% da largura do contêiner pai */
-        margin-right: 10%; /* Aumenta a margem direita para 10% da largura do contêiner pai */
-        background-color: #e6e6e6;
-        color: #333;
-      }
-      .dropzone:hover {
-        border-color: #45a049;
-        color: #45a049;
-      }
       .button-container {
         text-align: center; /* Centraliza os botões */
         margin-top: 20px;
-      }
-
-      #errorModal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.4);
-      }
-
-      #reportModal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.4);
-      }
-
-      #reportModal p {
-        margin: 0;
-        padding: 0;
-      }
-
-      .modal-content {
-        background-color: #F5F5F5;
-        margin: 15% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 40%; /* Ajuste este valor para a largura desejada */
-        max-width: 500px; /* Ajuste este valor para a largura máxima desejada */
-        border-radius: 10px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        background: #fff;
-        position: relative; /* Define a posição do modal como relativa para que o botão de fechar possa ser posicionado em relação a ele */
-      }
-
-      .close {
-        color: #aaaaaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-      }
-
-      .close:hover,
-      .close:focus {
-        color: #000;
-        text-decoration: none;
-        cursor: pointer;
-      }
-
-      #closeModal {
-        position: absolute; /* Posiciona o botão de fechar absolutamente em relação ao modal */
-        top: 10px; /* Posiciona o botão de fechar 10px a partir do topo do modal */
-        right: 10px; /* Posiciona o botão de fechar 10px a partir do lado direito do modal */
-      }
-      
-      #closeReportModal {
-        position: absolute; /* Posiciona o botão de fechar absolutamente em relação ao modal */
-        top: 10px; /* Posiciona o botão de fechar 10px a partir do topo do modal */
-        right: 10px; /* Posiciona o botão de fechar 10px a partir do lado direito do modal */
-      }
-
-      #closeReportModal img {
-        width: 20px; /* Ajusta a largura do ícone para 20px */
-      }
-      
-      #closeModal img {
-        width: 20px; /* Ajusta a largura do ícone para 20px */
-      }
-
-      #erroIcon {
-        width:          15%;
-        height:         15%;
-        margin-top:     5%;
-        margin-bottom:  0%; /* Adiciona espaço entre o ícone e o texto */
-      }
-
-      #errorText {
-        color: #333; /* Cor do texto */
-        font-size: 16px; /* Tamanho do texto */
-        text-align: center; /* Alinhamento do texto */
-        font-weight: 800;
       }
 
       .button:disabled {
@@ -219,17 +126,6 @@
         background-color: #cccccc; /* Mantém a cor cinza mesmo quando o cursor passa por cima */
       }
 
-      .video-info {
-        display: flex;
-        justify-content: space-between;
-      }
-      .video-info div {
-          width: 45%;
-          overflow: hidden; /* Adicionado para evitar barras de rolagem */
-      }
-      .video-info div:first-child {
-          border-right: 1px solid #000;
-      }
     </style>
   </head>
   <body>
@@ -239,80 +135,23 @@
     <div class="stripe yellow-stripe"></div>
     <div class="stripe red-stripe"></div>
   
-    <div id="errorModal" style="display: none;">
-      <div class="modal-content">
-        <span id="closeModal" style="cursor: pointer;">
-          <img src="/images/close.svg" alt="Close">
-        </span>
-        <span id="errorText"></span>
-        <img id="erroIcon" src="/images/failed.svg" alt="Failed Icon">
-        <p id="errorMessage"></p>
-      </div>
-    </div>
-  
-    <div id="reportModal" style="display: none;">
-      <div class="modal-content">
-        <span id="closeReportModal" style="cursor: pointer;">
-          <img src="/images/close.svg" alt="Close">
-        </span>
-        <h2>Relatório do Vídeo</h2>
-        <div class="video-info">
-          <div>
-            <h3>Vídeo Original</h3>
-            <table>
-              <tr><td>Tamanho:</td><td id="original_tamanho"></td></tr>
-              <tr><td>Duração:</td><td id="original_duracao"></td></tr>
-              <tr><td>Largura:</td><td id="original_largura"></td></tr>
-              <tr><td>Altura:</td><td id="original_altura"></td></tr>
-              <tr><td>Codec de Vídeo:</td><td id="original_codecVideo"></td></tr>
-              <tr><td>Tx. de Bits do Vídeo:</td><td id="original_taxaBitsVideo"></td></tr>
-              <tr><td>Tx. de Quadros do Vídeo:</td><td id="original_taxaQuadrosVideo"></td></tr>
-              <tr><td>Codec de Áudio:</td><td id="original_codecAudio"></td></tr>
-              <tr><td>Tx. de Bits do Áudio:</td><td id="original_taxaBitsAudio"></td></tr>
-              <tr><td>Tx. de Quadros do Áudio:</td><td id="original_taxaQuadrosAudio"></td></tr>
-            </table>
-          </div>
-          <div>
-            <h3>Vídeo Comprimido</h3>
-            <table>
-              <tr><td>Tamanho:</td><td id="compressed_tamanho"></td></tr>
-              <tr><td>Duração:</td><td id="compressed_duracao"></td></tr>
-              <tr><td>Largura:</td><td id="compressed_largura"></td></tr>
-              <tr><td>Altura:</td><td id="compressed_altura"></td></tr>
-              <tr><td>Codec de Vídeo:</td><td id="compressed_codecVideo"></td></tr>
-              <tr><td>Tx. de Bits do Vídeo:</td><td id="compressed_taxaBitsVideo"></td></tr>
-              <tr><td>Tx. de Quadros do Vídeo:</td><td id="compressed_taxaQuadrosVideo"></td></tr>
-              <tr><td>Codec de Áudio:</td><td id="compressed_codecAudio"></td></tr>
-              <tr><td>Tx. de Bits do Áudio:</td><td id="compressed_taxaBitsAudio"></td></tr>
-              <tr><td>Tx. de Quadros do Áudio:</td><td id="compressed_taxaQuadrosAudio"></td></tr>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-  
-    <div id="progressBarContainer" style="display: none; width: 100%;">
-      <div id="progressBar" style="background-color: #4CAF50; width: 0%; height: 30px;"></div>
-    </div>
-  
     <div class="container">
-      <h1>CODEC</h1>
-      <p>Projeto da Disciplina CMP1103: Desenvolvimento de um codec simples para vídeo digital.</p>
-      <form id="videoForm" action="/compress" method="post" enctype="multipart/form-data">
-        <input type="file" id="videoUpload" name="video" accept="video/*" style="display: none;">
-        <div id="dropzone" class="dropzone">
-          Arraste e solte o vídeo aqui, ou clique para selecionar o arquivo.
-          <br>
-          <i>Limite de tamanho do arquivo: 10MB</i>
-        </div>
-        <div class="button-container">
-          <button class="button" id="sendButton" type="submit" disabled>Enviar</button>
-          <button class="button" id="removeButton" onclick="removeVideo(event)" disabled>Remover</button>
-          <button class="button" id="downloadButton" onclick="downloadVideo(event)" disabled>Baixar</button>
-        </div>
-      </form>
-      <video id="videoPlayer" controls style="display: none;"></video>
+      <h1>Lista de Exercício 4</h1>
+      <h3>Nesta ferramenta, você explorará diferentes aspectos da manipulação de mídia digital, abrangendo áudio e vídeo.
+      Você converterá áudio para diferentes formatos, usará um codec de vídeo, analisará formatos de vídeo e gerará sons básicos.</h3>
+      <br>
+      <p>
+        Disciplina: CMP1103 - Sistemas Multimídias<br>
+        Professor: Msc. Fernando Gonçalves Abadia<br>
+        Acadêmico: Eliseu Rodrigues Guimarães
+      </p>
+      <div class="stripe black-stripe"></div>
+
+      <div class="button-container">
+        <button class="button" id="codec" type="submit">CODEC</button>
+        <button class="button" id="wave"  type="wave">Sintetizador</button>
+      </div>
+
     </div>
   
     <footer>
@@ -320,197 +159,13 @@
     </footer>
   
     <script>
-      var dropzone = document.getElementById('dropzone');
-      var input = document.getElementById('videoUpload');
-      var video = document.getElementById('videoPlayer');
-      var removeButton = document.getElementById('removeButton');
-      var sendButton = document.getElementById('sendButton');
-      var downloadButton = document.getElementById('downloadButton');
-  
-      function updateButtonStatus(isEnabled) {
-        removeButton.disabled = !isEnabled;
-        sendButton.disabled = !isEnabled;
-        downloadButton.disabled = true;
-  
-        if (isEnabled) {
-          removeButton.classList.remove('disabled');
-          sendButton.classList.remove('disabled');
-        } else {
-          removeButton.classList.add('disabled');
-          sendButton.classList.add('disabled');
-        }
-      }
-  
-      var originalFileName = '';
-  
-      input.onchange = function () {
-        var file = input.files[0];
-        originalFileName = file.name;
-        var videoURL = URL.createObjectURL(file);
-        setVideoSource(videoURL, file);
-      };
-  
-      dropzone.onclick = function () {
-        input.click();
-      };
-  
-      dropzone.ondragover = function (event) {
-        event.preventDefault();
-        dropzone.style.backgroundColor = '#f0f0f0';
-      };
-  
-      dropzone.ondragleave = function (event) {
-        event.preventDefault();
-        dropzone.style.backgroundColor = '#fff';
-      };
-  
-      dropzone.ondrop = function (event) {
-        event.preventDefault();
-        dropzone.style.backgroundColor = '#fff';
-        var file = event.dataTransfer.files[0];
-        originalFileName = file.name;
-        var videoURL = URL.createObjectURL(file);
-        setVideoSource(videoURL, file);
-      };
-  
-      function setVideoSource(url, file) {
-        video.src = url;
-        video.srcBlob = file;
-        video.load();
-        video.oncanplaythrough = function () {
-          video.style.display = "block";
-          updateButtonStatus(true);
-        };
-      }
-  
-      function removeVideo(event) {
-        event.preventDefault();
-        video.src = "";
-        video.style.display = "none";
-        updateButtonStatus(false);
-        input.value = "";
-      }
-  
-      document.getElementById('videoForm').addEventListener('submit', function (event) {
-        event.preventDefault();
-
-        var formData = new FormData();
-        formData.append('video', video.srcBlob, originalFileName);
-
-        var request = new XMLHttpRequest();
-
-        request.onreadystatechange = function () {
-          if (request.readyState == 4) {
-            if (request.status == 400) {
-              document.getElementById('errorMessage').textContent = request.responseText;
-              document.getElementById('errorModal').style.display = 'block';
-
-              setTimeout(function () {
-                document.getElementById('errorModal').style.display = 'none';
-              }, 3000);
-            } else if (request.status == 200) {
-              var response = JSON.parse(request.responseText);
-              console.log("RESPONSE: ", response);
-              var downloadLink = response.downloadLink;
-              var originalName = response.originalName;
-
-              if (downloadLink && originalName) {
-                localStorage.setItem('compressedVideoInfo', JSON.stringify({ downloadLink: downloadLink, originalName: originalName }));
-                console.log("LOCALSTORAGE: ", localStorage);
-                downloadButton.disabled = false;
-              }
-
-              // Atualiza as informações dos vídeos no modal
-              updateVideoInfo('original', response.originalVideoInfo);
-              updateVideoInfo('compressed', response.compressedVideoInfo);
-
-              document.getElementById('reportModal').style.display = 'block';
-            }
-          }
-        };
-
-        request.open('POST', '/compress');
-        request.send(formData);
+      document.getElementById('codec').addEventListener('click', function() {
+        window.location.href = '/codec.html';
       });
-
-      function formatBytes(bytes) {
-        if (bytes === 0) return '0 B';
-        var k = 1024,
-            dm = 2,
-            sizes = ['B', 'KB', 'MB', 'GB', 'TB'],
-            i = Math.floor(Math.log(bytes) / Math.log(k));
-        return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-      }
-
-      function formatDuration(seconds) {
-        var h = Math.floor(seconds / 3600);
-        var m = Math.floor((seconds % 3600) / 60);
-        var s = Math.floor(seconds % 60);
-        return [h, m, s]
-          .map(v => v < 10 ? "0" + v : v)
-          .filter((v, i) => v !== "00" || i > 0)
-          .join(":");
-      }
-
-      function formatBits(bits) {
-        if (bits === 0) return '0 bps';
-        var k = 1000,
-            dm = 2,
-            sizes = ['bps', 'kbps', 'Mbps', 'Gbps', 'Tbps'],
-            i = Math.floor(Math.log(bits) / Math.log(k));
-        return parseFloat((bits / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-      }
-  
-      function updateVideoInfo(type, info) {
-        var prefix = type === 'original' ? 'original_' : 'compressed_';
-        var elements = {
-          'tamanho': formatBytes(info.format.size),
-          'duracao': formatDuration(info.format.duration),
-          'largura': info.streams[0].width,
-          'altura': info.streams[0].height,
-          'codecVideo': info.streams[0].codec_name,
-          'taxaBitsVideo': formatBits(info.streams[0].bit_rate),
-          'taxaQuadrosVideo': info.streams[0].r_frame_rate,
-          'codecAudio': info.streams[1] ? info.streams[1].codec_name : 'N/A',
-          'taxaBitsAudio': info.streams[1] ? formatBits(info.streams[1].bit_rate) : 'N/A',
-          'taxaQuadrosAudio': info.streams[1] ? info.streams[1].sample_rate : 'N/A'
-        };
-
-        Object.keys(elements).forEach(function (key) {
-          var element = document.getElementById(prefix + key);
-          if (element) {
-            element.textContent = elements[key];
-          }
-        });
-      }
-  
-      function downloadVideo(event) {
-        event.preventDefault();
-  
-        var link = document.createElement('a');
-        var compressedVideoInfo = JSON.parse(localStorage.getItem('compressedVideoInfo'));
-  
-        if (!compressedVideoInfo || !compressedVideoInfo.downloadLink) {
-          console.error('Informações do vídeo comprimido não encontradas.');
-          return;
-        }
-  
-        var originalName = compressedVideoInfo.originalName || 'video_compressed';
-        var downloadName = originalName.replace(/(\.\w+)?$/, '_compressed$1');
-  
-        link.href = compressedVideoInfo.downloadLink;
-        link.download = downloadName;
-        link.click();
-      }
-  
-      document.getElementById('closeModal').addEventListener('click', function () {
-        document.getElementById('errorModal').style.display = 'none';
+      
+      document.getElementById('wave').addEventListener('click', function() {
+        window.location.href = '/wave.html';
       });
-  
-      document.getElementById('closeReportModal').addEventListener('click', function () {
-        document.getElementById('reportModal').style.display = 'none';
-      });
-  
     </script>
   </body>
 </html>

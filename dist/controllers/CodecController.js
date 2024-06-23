@@ -16,7 +16,7 @@ exports.compress = compress;
 exports.download = download;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
-const CodecService_1 = require("../service/CodecService");
+const CodecService_1 = require("../services/CodecService");
 const progress_stream_1 = __importDefault(require("progress-stream"));
 const server_1 = require("../server");
 const ws_1 = __importDefault(require("ws"));
@@ -30,9 +30,9 @@ function compress(req, res) {
         }
         const inputBuffer = req.file.buffer;
         console.log('[CC]:26 Buffer do arquivo recebido');
-        const tempInputPath = path_1.default.resolve('/tmp/temp', req.file.originalname);
+        const tempInputPath = path_1.default.resolve(__dirname, '../../tmp/temp', req.file.originalname);
         console.log('[CC]:27 Caminho temporário do arquivo:', tempInputPath);
-        const outputPath = path_1.default.resolve('/tmp/compressed', req.file.originalname);
+        const outputPath = path_1.default.resolve(__dirname, '../../tmp/compressed', req.file.originalname);
         console.log('[CC]:29 Caminho de saída do arquivo:', outputPath);
         const tempDir = path_1.default.dirname(tempInputPath);
         const outputDir = path_1.default.dirname(outputPath);
@@ -96,7 +96,8 @@ function compress(req, res) {
 function download(req, res) {
     console.log('[CC]:102 Iniciando download do arquivo');
     const filename = req.params.filename;
-    const directoryPath = path_1.default.resolve(__dirname, '..', '..', 'tmp/compressed');
+    const directoryPath = path_1.default.resolve(__dirname, '../../tmp/compressed');
+    console.log("[CC]:104 directoryPath", directoryPath);
     const fullPath = path_1.default.join(directoryPath, filename);
     res.setHeader('Content-Disposition', 'attachment; filename=' + filename);
     res.download(fullPath, filename, (err) => {
