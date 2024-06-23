@@ -30,9 +30,11 @@ function compress(req, res) {
         }
         const inputBuffer = req.file.buffer;
         console.log('[CC]:26 Buffer do arquivo recebido');
-        const tempInputPath = path_1.default.resolve(__dirname, '../../tmp/temp', req.file.originalname);
+        const tempInputPath = path_1.default.resolve(__dirname, '../../tmp', req.file.originalname);
         console.log('[CC]:27 Caminho temporário do arquivo:', tempInputPath);
-        const outputPath = path_1.default.resolve(__dirname, '../../tmp/compressed', req.file.originalname);
+        // Adicionando sufixo "_compressed" ao nome do arquivo de saída
+        const compressedFileName = req.file.originalname.replace(/\.[^/.]+$/, "") + "_compressed.mp4";
+        const outputPath = path_1.default.resolve(__dirname, '../../tmp', compressedFileName);
         console.log('[CC]:29 Caminho de saída do arquivo:', outputPath);
         const tempDir = path_1.default.dirname(tempInputPath);
         const outputDir = path_1.default.dirname(outputPath);
@@ -68,12 +70,11 @@ function compress(req, res) {
             yield codecService.compressVideo(tempInputPath, outputPath, progressStream);
             console.log('[CC]:72 Obtendo informações do vídeo comprimido');
             const compressedVideoInfo = yield codecService.getVideoInfo(outputPath);
-            const originalName = req.file.originalname;
-            const downloadLink = `/download/${originalName}`;
+            const downloadLink = `/download/${compressedFileName}`;
             console.log(`[CC]:78 Link de download: ${downloadLink}`);
             res.status(200).send({
                 downloadLink,
-                originalName,
+                originalName: req.file.originalname,
                 originalVideoInfo,
                 compressedVideoInfo
             });
@@ -96,8 +97,7 @@ function compress(req, res) {
 function download(req, res) {
     console.log('[CC]:102 Iniciando download do arquivo');
     const filename = req.params.filename;
-    const directoryPath = path_1.default.resolve(__dirname, '../../tmp/compressed');
-    console.log("[CC]:104 directoryPath", directoryPath);
+    const directoryPath = path_1.default.resolve(__dirname, '../../tmp');
     const fullPath = path_1.default.join(directoryPath, filename);
     res.setHeader('Content-Disposition', 'attachment; filename=' + filename);
     res.download(fullPath, filename, (err) => {
