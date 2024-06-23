@@ -1,12 +1,9 @@
 {
-    "engines": {
-        "node": "22.x"
-    },
+    
     "scripts": {
-      "start": "nodemon ./src/server.ts",
+      "start": "nodemon dist/server.js",
       "build": "tsc && npm run copy-public",
-      "copy-public": "cp -R src/public dist/",
-      "vercel-build": "npx deploy"
+      "copy-public": "cp -R src/public dist/"
     },
     "dependencies": {
         "@ffmpeg-installer/ffmpeg": "^1.1.0",
