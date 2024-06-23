@@ -12,7 +12,8 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.download = exports.compress = void 0;
+exports.compress = compress;
+exports.download = download;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
 const CodecService_1 = require("../service/CodecService");
@@ -92,7 +93,6 @@ function compress(req, res) {
         }
     });
 }
-exports.compress = compress;
 function download(req, res) {
     console.log('[CC]:102 Iniciando download do arquivo');
     const filename = req.params.filename;
@@ -106,4 +106,3 @@ function download(req, res) {
         }
     });
 }
-exports.download = download;
