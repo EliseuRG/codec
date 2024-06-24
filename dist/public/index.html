@@ -148,8 +148,9 @@
       <div class="stripe black-stripe"></div>
 
       <div class="button-container">
-        <button class="button" id="video"        type="submit">Vídeo</button>
         <button class="button" id="audio"        type="submit">Áudio</button>
+        <button class="button" id="estracao"     type="submit">Extração</button>
+        <button class="button" id="video"        type="submit">Vídeo</button>
         <button class="button" id="sintetizador" type="submit">Sintetizador</button>
       </div>
 
@@ -160,12 +161,16 @@
     </footer>
   
     <script>
-      document.getElementById('video').addEventListener('click', function() {
-        window.location.href = '/video-codec.html';
-      });
-      
       document.getElementById('audio').addEventListener('click', function() {
         window.location.href = '/audio-codec.html';
+      });
+      
+      document.getElementById('estracao').addEventListener('click', function() {
+        window.location.href = '/estracao-codec.html';
+      });
+
+      document.getElementById('video').addEventListener('click', function() {
+        window.location.href = '/video-codec.html';
       });
       
       document.getElementById('sintetizador').addEventListener('click', function() {

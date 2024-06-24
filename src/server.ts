@@ -5,20 +5,24 @@ import WebSocket        from 'ws';
 import codecRoutes      from './routers/CodecRoutes';
 import synthRoutes      from './routers/SynthRoutes';
 import audioCodecRoutes from './routers/AudioCodecRoutes';
+import audioExtractionRoutes from './routers/AudioExtractionRoutes';
 
 const app = express();
 export const wss = new WebSocket.Server({ port: 8081 });
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(express.static(path.join(__dirname, 'public')));
+
 app.use(codecRoutes);
 app.use(audioCodecRoutes);
+app.use(audioExtractionRoutes);
+
 app.use((req, res, next) => {
   res.setHeader("Content-Security-Policy", "default-src 'self'; media-src 'self' blob:; img-src 'self'; style-src 'self' 'unsafe-inline'");
   next();
 });
+
 app.use('/api/synth', synthRoutes);
 
 app.get('/', (req, res) => {
@@ -32,6 +36,9 @@ app.get('/video-codec.html', (req, res) => {
 });
 app.get('/audio-codec.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'AudioCodec.html'));
+});
+app.get('/estracao-codec.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'AudioExtractionCodec.html'));
 });
 
 app.listen(31103, () => {

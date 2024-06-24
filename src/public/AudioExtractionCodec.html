@@ -6,9 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/svg+xml" href="/images/favicon.ico">
     <link href="https://fonts.googleapis.com/css?family=Inter:300,600,700,900" rel="stylesheet">
-    <title>CMP1103 | Vídeo</title>
+    <title>CMP1103 | Extrator</title>
 
     <style>
+
       body {
         font-family: 'Inter', sans-serif;
         margin: 0;
@@ -77,14 +78,7 @@
       p {
         margin: 20px 0;
       }
-      video {
-        width: 50%; /* Altere para a largura desejada */
-        height: auto;
-        margin-top: 20px;
-        display: block; /* Adicione isso para centralizar o vídeo */
-        margin-left: auto;
-        margin-right: auto;
-      }
+
       label {
         margin: 10px 0;
         font-weight: bold;
@@ -96,7 +90,22 @@
         flex-direction: column;
         align-items: center;
       }
-
+      select {
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: calc(100% - 22px);
+        max-width: 15%;
+      }
+      input {
+        margin: 10px 0;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        width: calc(100% - 22px);
+        max-width: 40%;
+      }
       .stripe {
         height: 5px; /* Ajuste este valor para a altura desejada */
         width: 100%;
@@ -125,6 +134,11 @@
         color: #fff;
         text-align: center;
         padding: 0.001% 0; /* Reduz o padding para diminuir a altura */
+      }
+      canvas {
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        margin: 20px 0;
       }
       .dropzone {
         border: 2px dashed #333;
@@ -174,6 +188,19 @@
       #reportModal p {
         margin: 0;
         padding: 0;
+      }
+
+      .input-group {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        width: 100%;
+      }
+
+      .input-item {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
       }
 
       .modal-content {
@@ -249,17 +276,13 @@
         background-color: #cccccc; /* Mantém a cor cinza mesmo quando o cursor passa por cima */
       }
 
-      .video-info {
-        display: flex;
-        justify-content: space-between;
+      #waveformCanvas {
+        border: none;
+        width: 50%;
+        height: 150px;
+        margin-bottom: 0px;
       }
-      .video-info div {
-          width: 45%;
-          overflow: hidden; /* Adicionado para evitar barras de rolagem */
-      }
-      .video-info div:first-child {
-          border-right: 1px solid #000;
-      }
+
       .back-link {
         display: flex;
         align-items: center;
@@ -285,6 +308,25 @@
       .back-link:hover span {
         text-decoration: none; /* Sublinhado apenas no texto ao hover */
       }
+      video {
+        width: 50%; /* Altere para a largura desejada */
+        height: auto;
+        margin-top: 20px;
+        display: block; /* Adicione isso para centralizar o vídeo */
+        margin-left: auto;
+        margin-right: auto;
+      }
+      .video-info {
+        display: flex;
+        justify-content: space-between;
+      }
+      .video-info div {
+          width: 45%;
+          overflow: hidden; /* Adicionado para evitar barras de rolagem */
+      }
+      .video-info div:first-child {
+          border-right: 1px solid #000;
+      }
     </style>
   </head>
   <body>
@@ -305,63 +347,17 @@
       </div>
     </div>
   
-    <div id="reportModal" style="display: none;">
-      <div class="modal-content">
-        <span id="closeReportModal" style="cursor: pointer;">
-          <img src="/images/close.svg" alt="Close">
-        </span>
-        <h2>Relatório do Vídeo</h2>
-        <div class="video-info">
-          <div>
-            <h3>Vídeo Original</h3>
-            <table>
-              <tr><td>Tamanho:</td><td id="original_tamanho"></td></tr>
-              <tr><td>Duração:</td><td id="original_duracao"></td></tr>
-              <tr><td>Largura:</td><td id="original_largura"></td></tr>
-              <tr><td>Altura:</td><td id="original_altura"></td></tr>
-              <tr><td>Codec de Vídeo:</td><td id="original_codecVideo"></td></tr>
-              <tr><td>Tx. de Bits do Vídeo:</td><td id="original_taxaBitsVideo"></td></tr>
-              <tr><td>Tx. de Quadros do Vídeo:</td><td id="original_taxaQuadrosVideo"></td></tr>
-              <tr><td>Codec de Áudio:</td><td id="original_codecAudio"></td></tr>
-              <tr><td>Tx. de Bits do Áudio:</td><td id="original_taxaBitsAudio"></td></tr>
-              <tr><td>Tx. de Quadros do Áudio:</td><td id="original_taxaQuadrosAudio"></td></tr>
-            </table>
-          </div>
-          <div>
-            <h3>Vídeo Comprimido</h3>
-            <table>
-              <tr><td>Tamanho:</td><td id="compressed_tamanho"></td></tr>
-              <tr><td>Duração:</td><td id="compressed_duracao"></td></tr>
-              <tr><td>Largura:</td><td id="compressed_largura"></td></tr>
-              <tr><td>Altura:</td><td id="compressed_altura"></td></tr>
-              <tr><td>Codec de Vídeo:</td><td id="compressed_codecVideo"></td></tr>
-              <tr><td>Tx. de Bits do Vídeo:</td><td id="compressed_taxaBitsVideo"></td></tr>
-              <tr><td>Tx. de Quadros do Vídeo:</td><td id="compressed_taxaQuadrosVideo"></td></tr>
-              <tr><td>Codec de Áudio:</td><td id="compressed_codecAudio"></td></tr>
-              <tr><td>Tx. de Bits do Áudio:</td><td id="compressed_taxaBitsAudio"></td></tr>
-              <tr><td>Tx. de Quadros do Áudio:</td><td id="compressed_taxaQuadrosAudio"></td></tr>
-            </table>
-          </div>
-        </div>
-      </div>
-    </div>
-    
-  
-    <div id="progressBarContainer" style="display: none; width: 100%;">
-      <div id="progressBar" style="background-color: #4CAF50; width: 0%; height: 30px;"></div>
-    </div>
-  
     <div class="container">
       <a href="/" class="back-link">
         <img src="/images/seta.svg" alt="Voltar">
         <span>Início</span>
       </a>
-      <h1>Conversor de Vídeo</h1>
-      <p>Comprima e descomprima vídeo digital. O codec aplica técnicas de compressão como sub-amostragem de cor (4:2:0), DCT e codificação de Huffman.</p>
+      <h1>Extração de Áudio de Vídeo</h1>
+      <p>Ferramenta para extrair o áudio de um vídeo. Escolha um vídeo, e será estraído a faixa de áudio para um arquivo MP3.</p>
       <div class="stripe black-stripe"></div>
 
-      <form id="videoForm" action="/compress" method="post" enctype="multipart/form-data">
-        <input type="file" id="videoUpload" name="video" accept="video/*" style="display: none;">
+      <form id="audioForm" action="/extract-audio" method="post" enctype="multipart/form-data">
+        <input type="file" id="videoUpload" name="videoFile" accept="video/*" style="display: none;">
         <div id="dropzone" class="dropzone">
           Arraste e solte o vídeo aqui, ou clique para selecionar o arquivo.
           <br>
@@ -374,12 +370,13 @@
         </div>
       </form>
       <video id="videoPlayer" controls style="display: none;"></video>
-    </div>    
+    </div>
   
     <footer>
       <p>© 2024 Eliseu Rodrigues. Todos os direitos reservados.</p>
     </footer>
   
-    <script src="/scripts/VideoScript.js"></script>
+    <script src="/scripts/AudioExtractionScript.js"></script>
   </body>
+
 </html>
