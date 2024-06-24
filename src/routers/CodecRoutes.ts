@@ -1,7 +1,7 @@
 // CodecRoutes.ts
 import express, { Request, Response, NextFunction } from 'express';
-import multer from 'multer';
-import { compress, download } from '../controllers/CodecController';
+import { compress, download }                       from '../controllers/CodecController';
+import multer                                       from 'multer';
 
 const router = express.Router();
 
@@ -13,7 +13,7 @@ const upload = multer({
 });
 
 router.post('/compress', upload.single('video'), compress);
-router.get('/download/:filename', download);
+router.get('/download/video/:filename', download);
 
 router.use((err: multer.MulterError, req: Request, res: Response, next: NextFunction) => {
   if (err instanceof multer.MulterError && err.code === 'LIMIT_FILE_SIZE') {

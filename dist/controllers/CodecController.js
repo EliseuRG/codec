@@ -14,12 +14,12 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.compress = compress;
 exports.download = download;
-const fs_1 = __importDefault(require("fs"));
-const path_1 = __importDefault(require("path"));
 const CodecService_1 = require("../services/CodecService");
+const ws_1 = __importDefault(require("ws"));
 const progress_stream_1 = __importDefault(require("progress-stream"));
 const server_1 = require("../server");
-const ws_1 = __importDefault(require("ws"));
+const path_1 = __importDefault(require("path"));
+const fs_1 = __importDefault(require("fs"));
 const codecService = new CodecService_1.CodecService();
 function compress(req, res) {
     return __awaiter(this, void 0, void 0, function* () {
@@ -70,7 +70,7 @@ function compress(req, res) {
             yield codecService.compressVideo(tempInputPath, outputPath, progressStream);
             console.log('[CC]:72 Obtendo informações do vídeo comprimido');
             const compressedVideoInfo = yield codecService.getVideoInfo(outputPath);
-            const downloadLink = `/download/${compressedFileName}`;
+            const downloadLink = `/download/video/${compressedFileName}`;
             console.log(`[CC]:78 Link de download: ${downloadLink}`);
             res.status(200).send({
                 downloadLink,

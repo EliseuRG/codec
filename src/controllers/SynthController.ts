@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import synthService from '../services/synthService';
+import synthService from '../services/SynthService';
 
 type WaveType = 'sine' | 'triangle' | 'square';
 

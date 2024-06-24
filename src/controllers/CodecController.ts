@@ -1,10 +1,11 @@
+//CodecController.ts
 import { Request as ExpressRequest, Response } from 'express';
-import fs from 'fs';
-import path from 'path';
-import { CodecService } from '../services/CodecService';
-import progress from 'progress-stream';
-import { wss } from '../server';
-import WebSocket from 'ws';
+import { CodecService }                        from '../services/CodecService';
+import WebSocket                               from 'ws';
+import progress                                from 'progress-stream';
+import { wss }                                 from '../server';
+import path                                    from 'path';
+import fs                                      from 'fs';
 
 interface Request extends ExpressRequest {
   file?: Express.Multer.File;
@@ -74,7 +75,7 @@ export async function compress(req: Request, res: Response) {
     console.log('[CC]:72 Obtendo informações do vídeo comprimido');
     const compressedVideoInfo = await codecService.getVideoInfo(outputPath);
 
-    const downloadLink = `/download/${compressedFileName}`;
+    const downloadLink = `/download/video/${compressedFileName}`;
 
     console.log(`[CC]:78 Link de download: ${downloadLink}`);
     res.status(200).send({

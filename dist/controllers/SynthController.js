@@ -4,7 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.getWave = void 0;
-const synthService_1 = __importDefault(require("../services/synthService"));
+const SynthService_1 = __importDefault(require("../services/SynthService"));
 const isValidWaveType = (type) => {
     return ['sine', 'triangle', 'square'].includes(type);
 };
@@ -15,7 +15,7 @@ const getWave = (req, res) => {
         return;
     }
     try {
-        const waveData = synthService_1.default.generateWave(type, parseFloat(frequency), parseFloat(amplitude));
+        const waveData = SynthService_1.default.generateWave(type, parseFloat(frequency), parseFloat(amplitude));
         res.json(waveData);
     }
     catch (error) {
